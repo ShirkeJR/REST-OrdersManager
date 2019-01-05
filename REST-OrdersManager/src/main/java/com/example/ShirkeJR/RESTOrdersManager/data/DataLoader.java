@@ -1,10 +1,10 @@
 package com.example.ShirkeJR.RESTOrdersManager.data;
 
 import com.example.ShirkeJR.RESTOrdersManager.Repository.CustomerRepository;
-import com.example.ShirkeJR.RESTOrdersManager.model.Address;
-import com.example.ShirkeJR.RESTOrdersManager.model.Customer;
-import com.example.ShirkeJR.RESTOrdersManager.model.CustomerOrder;
-import com.example.ShirkeJR.RESTOrdersManager.model.Product;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.Address;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.CustomerOrder;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -34,9 +34,9 @@ public class DataLoader implements CommandLineRunner {
         Product prod5 = new Product("prod 5 name", "prod 5 decription", 125.00);
         Product prod6 = new Product("prod 6 name", "prod 6 decription", 658.99);
 
-        CustomerOrder order1 = new CustomerOrder(LocalDate.now(), LocalDate.now().plusDays(1));
-        CustomerOrder order2 = new CustomerOrder(LocalDate.now(), LocalDate.now().plusDays(2));
-        CustomerOrder order3 = new CustomerOrder(LocalDate.now(), LocalDate.now().plusDays(3));
+        CustomerOrder order1 = new CustomerOrder();
+        CustomerOrder order2 = new CustomerOrder();
+        CustomerOrder order3 = new CustomerOrder();
 
         order1.addProduct(prod1);
         order1.addProduct(prod2);

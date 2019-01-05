@@ -1,4 +1,4 @@
-package com.example.ShirkeJR.RESTOrdersManager.model;
+package com.example.ShirkeJR.RESTOrdersManager.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -14,7 +14,7 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Customer extends ResourceSupport {
+public class Customer{
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)
@@ -30,7 +30,7 @@ public class Customer extends ResourceSupport {
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerOrder> orders = new ArrayList<>();
 
     public void addOrder(CustomerOrder order){
@@ -46,5 +46,12 @@ public class Customer extends ResourceSupport {
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
+    }
+
+    public void updateAdress(Address address){
+        this.address.setCountry(address.getCountry());
+        this.address.setPostcode(address.getPostcode());
+        this.address.setStreet(address.getStreet());
+        this.address.setTown(address.getTown());
     }
 }

@@ -1,9 +1,8 @@
-package com.example.ShirkeJR.RESTOrdersManager.model;
+package com.example.ShirkeJR.RESTOrdersManager.domain.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.hateoas.ResourceSupport;
 
 import javax.persistence.*;
 
@@ -11,7 +10,7 @@ import javax.persistence.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Product extends ResourceSupport {
+public class Product{
 
     @Id
     @GeneratedValue(strategy= GenerationType.AUTO)

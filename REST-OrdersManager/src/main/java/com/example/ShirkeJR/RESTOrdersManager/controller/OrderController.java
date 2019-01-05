@@ -6,13 +6,18 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import com.example.ShirkeJR.RESTOrdersManager.Repository.CustomerRepository;
 import com.example.ShirkeJR.RESTOrdersManager.Repository.OrderRepository;
 import com.example.ShirkeJR.RESTOrdersManager.Repository.ProductRepository;
-import com.example.ShirkeJR.RESTOrdersManager.exception.InvalidCustomerRequestException;
-import com.example.ShirkeJR.RESTOrdersManager.exception.InvalidOrderRequestException;
-import com.example.ShirkeJR.RESTOrdersManager.exception.OrderNotFoundException;
-import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
-import com.example.ShirkeJR.RESTOrdersManager.model.Customer;
-import com.example.ShirkeJR.RESTOrdersManager.model.CustomerOrder;
-import com.example.ShirkeJR.RESTOrdersManager.model.Product;
+import com.example.ShirkeJR.RESTOrdersManager.domain.converter.OrderConverter;
+import com.example.ShirkeJR.RESTOrdersManager.domain.converter.ProductConverter;
+import com.example.ShirkeJR.RESTOrdersManager.domain.dto.CustomerOrderDto;
+import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductDto;
+import com.example.ShirkeJR.RESTOrdersManager.exception.*;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.CustomerOrder;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
+import com.example.ShirkeJR.RESTOrdersManager.service.CustomerService;
+import com.example.ShirkeJR.RESTOrdersManager.service.OrderService;
+import com.example.ShirkeJR.RESTOrdersManager.service.ProductService;
+import com.fasterxml.jackson.databind.annotation.JsonAppend;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import java.net.URI;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 @RestController
@@ -27,48 +33,60 @@ import java.util.stream.IntStream;
 public class OrderController {
 
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomerService customerService;
 
     @Autowired
-    private OrderRepository orderRepository;
+    private OrderService orderService;
 
     @Autowired
-    private ProductRepository productRepository;
+    private ProductService productService;
+
+    @Autowired
+    private OrderConverter orderConverter;
+
+    @Autowired
+    private ProductConverter productConverter;
 
 
     @RequestMapping(value = "/{orderId}", method = RequestMethod.GET)
-    public CustomerOrder getOrder(@PathVariable("orderId") Long orderId) {
+    public ResponseEntity<CustomerOrderDto> getOrder(@PathVariable("orderId") Long orderId) {
 
         if (null==orderId) {
             throw new InvalidOrderRequestException();
         }
 
-        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        CustomerOrderDto orderDto = orderConverter.toView(orderService.findById(orderId).orElseThrow(OrderNotFoundException::new));
 
-
-        order.add(linkTo(methodOn(OrderController.class)
-                .getOrder(order.getOrderId()))
+        orderDto.add(linkTo(methodOn(OrderController.class)
+                .getOrder(orderDto.getOrderId()))
                 .withSelfRel());
 
-        order.add(linkTo(methodOn(OrderController.class)
-                .removeOrder(order.getOrderId()))
+        orderDto.add(linkTo(methodOn(OrderController.class)
+                .removeOrder(orderDto.getOrderId()))
                 .withRel("delete"));
 
-        order.add(linkTo(methodOn(OrderController.class)
-                .getProductsFromOrder(order.getOrderId()))
+        orderDto.add(linkTo(methodOn(OrderController.class)
+                .getProductsFromOrder(orderDto.getOrderId()))
                 .withRel("products"));
 
-        return order;
+        return ResponseEntity.ok(orderDto);
+    }
+
+    @RequestMapping(method = RequestMethod.GET)
+    public ResponseEntity<List<CustomerOrderDto>> getOrders() {
+
+        return ResponseEntity.ok(orderService.findAll().stream()
+                .map(orderConverter::toView).collect(Collectors.toList()));
     }
 
 
     @RequestMapping(value = "/{customerId}/orders", method = RequestMethod.GET)
-    public ResponseEntity<List<CustomerOrder>> getCustomerOrders(@PathVariable("customerId") Long customerId) {
+    public ResponseEntity<List<CustomerOrderDto>> getCustomerOrders(@PathVariable("customerId") Long customerId) {
 
-        Customer customer = customerRepository.findById(customerId).orElseThrow(InvalidCustomerRequestException::new);
-        List<CustomerOrder> orders = customer.getOrders();
+        Customer customer = customerService.findById(customerId).orElseThrow(InvalidCustomerRequestException::new);
+        List<CustomerOrderDto> ordersDto = orderConverter.toView(customer.getOrders());
 
-        orders.forEach(order -> {
+        ordersDto.forEach(order -> {
 
             order.add(linkTo(methodOn(OrderController.class)
                     .getOrder(order.getOrderId()))
@@ -83,16 +101,16 @@ public class OrderController {
                     .withRel("products"));
         });
 
-        return ResponseEntity.ok(orders);
+        return ResponseEntity.ok(ordersDto);
     }
 
 
     @RequestMapping(value = "/{orderId}/products", method = RequestMethod.GET)
-    public ResponseEntity<List<Product>> getProductsFromOrder(@PathVariable("orderId") Long orderId) {
+    public ResponseEntity<List<ProductDto>> getProductsFromOrder(@PathVariable("orderId") Long orderId) {
 
-        CustomerOrder customerOrder = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
-        List<Product> products = customerOrder.getProducts();
-        products.forEach(product -> {
+        CustomerOrder customerOrder = orderService.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        List<ProductDto> productsDto = productConverter.toView(customerOrder.getProducts());
+        productsDto.forEach(product -> {
 
             product.add(linkTo(methodOn(ProductController.class)
                     .getProduct(product.getProductId()))
@@ -103,26 +121,26 @@ public class OrderController {
                     .withRel("delete-from-order"));
         });
 
-        return ResponseEntity.ok(products);
+        return ResponseEntity.ok(productsDto);
     }
 
 
     @RequestMapping(value = "/{orderId}/product/{productId}", method = RequestMethod.DELETE)
-    public ResponseEntity<CustomerOrder> deleteProductFromOrder(@PathVariable("orderId") Long orderId,
+    public ResponseEntity<CustomerOrderDto> deleteProductFromOrder(@PathVariable("orderId") Long orderId,
                                                                 @PathVariable("productId") Long productId) {
 
-        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        CustomerOrder order = orderService.findById(orderId).orElseThrow(OrderNotFoundException::new);
         Iterator<Product> productIterator = order.getProducts().iterator();
 
         productIterator.forEachRemaining(prod -> {
-            if(prod.getId().equals(productId)){
+            if(prod.getProductId().equals(productId)){
                 productIterator.remove();
             }
         });
 
-        orderRepository.save(order);
+        orderService.update(order);
 
-        return ResponseEntity.ok(order);
+        return ResponseEntity.ok(orderConverter.toView(order));
     }
 
 
@@ -131,45 +149,53 @@ public class OrderController {
                                                            @PathVariable("productId") Long productId,
                                                            @PathVariable("quantity") Integer quantity) {
 
-        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
-        Product product = productRepository.findById(productId).orElseThrow(ProductNotFoundException::new);
+        CustomerOrder order = orderService.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        Product product = productService.findById(productId).orElseThrow(ProductNotFoundException::new);
 
         IntStream.of(quantity).forEach(i-> order.addProduct(product));
-        orderRepository.save(order);
+        orderService.update(order);
 
-        orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new).getProducts()
+        CustomerOrderDto customerOrderDto = orderConverter.toView(orderService.findById(orderId).orElseThrow(OrderNotFoundException::new));
+        customerOrderDto.getProducts()
                 .forEach(prod -> {
-                    order.add(linkTo(methodOn(ProductController.class)
+                    customerOrderDto.add(linkTo(methodOn(ProductController.class)
                             .getProduct(prod.getProductId()))
                             .withRel("product"));
                 });
 
         return ResponseEntity
-                .created(URI.create(order.getLink("self").getHref()))
+                .created(URI.create(customerOrderDto.getLink("self").getHref()))
                 .body(order);
     }
 
 
-    @RequestMapping(value = { "/{orderId}" }, method = { RequestMethod.PUT })
-    public ResponseEntity<Void> updateOrder(@RequestBody CustomerOrder order,
+    @RequestMapping(value = { "/{orderId}" } , method = { RequestMethod.PUT })
+    public ResponseEntity<Void> updateOrder(@RequestBody CustomerOrderDto orderDto,
                                             @PathVariable("orderId") Long orderId) {
 
-        if(!orderRepository.existsById(orderId)){
+        if(!orderService.existsById(orderId)){
             return ResponseEntity.notFound().build();
         }
         else{
-            orderRepository.save(order);
+            orderService.update(orderConverter.toModel(orderDto));
             return ResponseEntity.noContent().build();
         }
     }
 
+    @RequestMapping(value = { "/{customerId}/create" }, method = { RequestMethod.PUT })
+    public ResponseEntity<Void> createOrder(@PathVariable("customerId") Long customerId) {
 
-    @RequestMapping(value = "/api/order/{orderId}", method = RequestMethod.DELETE)
+        Customer customer = customerService.findById(customerId).orElseThrow(CustomerNotFoundException::new);
+        customer.addOrder(orderService.create());
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(value = "/{orderId}", method = RequestMethod.DELETE)
     public ResponseEntity<Void> removeOrder(@PathVariable("orderId") Long orderId) {
 
-        if(orderRepository.existsById(orderId)){
-            orderRepository.deleteById(orderId);
-        }
+        CustomerOrder order = orderService.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        order.getProducts().clear();
+        orderService.deleteById(orderId);
 
         return ResponseEntity.noContent().build();
     }

@@ -1,5 +1,6 @@
-package com.example.ShirkeJR.RESTOrdersManager.model;
+package com.example.ShirkeJR.RESTOrdersManager.domain.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,6 +9,7 @@ import javax.persistence.*;
 @Entity
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 public class Address {
 
     @Id
@@ -19,14 +21,14 @@ public class Address {
 
     private String town;
 
-    private String county;
+    private String country;
 
     private String postcode;
 
-    public Address(String street, String town, String county, String postcode) {
+    public Address(String street, String town, String country, String postcode) {
         this.street = street;
         this.town = town;
-        this.county = county;
+        this.country = country;
         this.postcode = postcode;
     }
 }
