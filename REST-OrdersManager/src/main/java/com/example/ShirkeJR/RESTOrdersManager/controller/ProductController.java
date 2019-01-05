@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
+import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
+
 
 @RestController
 @RequestMapping("/api/product")
@@ -25,12 +28,16 @@ public class ProductController {
     @RequestMapping(value = "/{productId}", method = RequestMethod.GET)
     public ResponseEntity<ProductDto> getProduct(@PathVariable("productId") Long productId) {
 
-        if (productId == null) {
-            throw new InvalidProductRequestException();
-        }
-
         ProductDto productDto = productConverter.toView(productService.findById(productId)
                 .orElseThrow(ProductNotFoundException::new));
+
+        productDto.add(linkTo(methodOn(ProductController.class)
+                .getProduct(productDto.getProductId()))
+                .withSelfRel());
+
+        productDto.add(linkTo(methodOn(ProductController.class)
+                .updateProduct(productDto, productDto.getProductId()))
+                .withRel("update"));
 
         return ResponseEntity.ok(productDto);
     }
@@ -61,16 +68,4 @@ public class ProductController {
         productService.create(productConverter.toModel(productDto));
         return ResponseEntity.noContent().build();
     }
-
-
-    @RequestMapping(value = "/{productId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> deleteProduct(@PathVariable("productId") Long productId) {
-
-        if(productService.existsById(productId)){
-            productService.deleteById(productId);
-        }
-
-        return ResponseEntity.noContent().build();
-    }
-
 }

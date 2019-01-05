@@ -3,7 +3,6 @@ package com.example.ShirkeJR.RESTOrdersManager.domain.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.hateoas.ResourceSupport;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -30,7 +29,7 @@ public class Customer{
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     private List<CustomerOrder> orders = new ArrayList<>();
 
     public void addOrder(CustomerOrder order){
@@ -46,12 +45,5 @@ public class Customer{
         this.lastName = lastName;
         this.dateOfBirth = dateOfBirth;
         this.address = address;
-    }
-
-    public void updateAdress(Address address){
-        this.address.setCountry(address.getCountry());
-        this.address.setPostcode(address.getPostcode());
-        this.address.setStreet(address.getStreet());
-        this.address.setTown(address.getTown());
     }
 }

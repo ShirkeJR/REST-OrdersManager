@@ -34,10 +34,6 @@ public class CustomerController {
     @RequestMapping(value = "/{customerId}", method = RequestMethod.GET)
     public ResponseEntity<CustomerDto> getCustomer(@PathVariable("customerId") Long customerId) {
 
-        if (customerId == null) {
-            throw new InvalidCustomerRequestException();
-        }
-
         CustomerDto customerDto = customerConverter.toView(customerService.findById(customerId)
                 .orElseThrow(CustomerNotFoundException::new));
 
@@ -48,10 +44,6 @@ public class CustomerController {
         customerDto.add(linkTo(methodOn(CustomerController.class)
                 .updateCustomer(customerDto, customerDto.getCustomerId()))
                 .withRel("update"));
-
-        customerDto.add(linkTo(methodOn(CustomerController.class)
-                .removeCustomer(customerDto.getCustomerId()))
-                .withRel("delete"));
 
         customerDto.add(linkTo(methodOn(OrderController.class)
                 .getCustomerOrders(customerDto.getCustomerId()))
@@ -76,16 +68,6 @@ public class CustomerController {
     public ResponseEntity<Void> createCustomer(@RequestBody CustomerDto customerDto) {
 
         customerService.create(customerConverter.toModel(customerDto));
-        return ResponseEntity.noContent().build();
-    }
-
-    @RequestMapping(value = "{customerId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> removeCustomer(@PathVariable("customerId") Long customerId) {
-
-        if (customerService.existsById(customerId)) {
-            customerService.deleteById(customerId);
-        }
-
         return ResponseEntity.noContent().build();
     }
 }

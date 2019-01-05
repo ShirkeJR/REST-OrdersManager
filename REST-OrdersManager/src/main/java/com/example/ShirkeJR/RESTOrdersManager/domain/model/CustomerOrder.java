@@ -7,6 +7,7 @@ import java.time.LocalDate;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Entity
 @Data
@@ -24,12 +25,25 @@ public class CustomerOrder{
 
     private Double totalOrderAmount;
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private List<Product> products = new ArrayList<>();
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductLine> products = new ArrayList<>();
 
-    public void addProduct(Product product){
-        products.add(product);
-        this.totalOrderAmount = totalOrderAmount + product.getPrice();
+    public void addProducts(Product product, Integer quantity){
+        Optional<ProductLine> result = products.stream().filter(prod -> prod.getProductId().equals(product.getProductId())).findFirst();
+        if(result.isPresent()){
+            result.get().increaseQuantityByWithSum(quantity);
+        } else {
+            products.add(new ProductLine(product.getProductId(), quantity));
+        }
+        this.totalOrderAmount = totalOrderAmount + (quantity * product.getPrice());
+    }
+
+    public void removeProduct(Product product){
+        Optional<ProductLine> result = products.stream().filter(prod -> prod.getProductId().equals(product.getProductId())).findFirst();
+        result.ifPresent(prod -> {
+            this.totalOrderAmount = totalOrderAmount - (prod.getQuantity() * product.getPrice());
+            products.remove(prod);
+        });
     }
 
     public CustomerOrder() {

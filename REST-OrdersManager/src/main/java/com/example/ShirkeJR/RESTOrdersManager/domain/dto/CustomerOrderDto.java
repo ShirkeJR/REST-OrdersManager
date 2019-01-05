@@ -17,5 +17,5 @@ public class CustomerOrderDto extends ResourceSupport {
     private LocalDate orderDate;
     private LocalDate dispatchDate;
     private Double totalOrderAmount;
-    private List<ProductDto> products;
+    private List<ProductLineDto> products;
 }

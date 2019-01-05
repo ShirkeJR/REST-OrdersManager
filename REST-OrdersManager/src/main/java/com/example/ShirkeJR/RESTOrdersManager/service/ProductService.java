@@ -36,10 +36,6 @@ public class ProductService {
         return productRepository.save(oldProduct);
     }
 
-    public void deleteById(Long productId){
-        productRepository.deleteById(productId);
-    }
-
     public Product create(Product newProduct){
         Product product = new Product();
         product.setName(newProduct.getName());
@@ -47,4 +43,6 @@ public class ProductService {
         product.setPrice(newProduct.getPrice());
         return productRepository.save(product);
     }
+
+
 }

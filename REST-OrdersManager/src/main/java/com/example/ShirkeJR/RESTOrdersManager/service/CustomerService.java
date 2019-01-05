@@ -2,7 +2,6 @@ package com.example.ShirkeJR.RESTOrdersManager.service;
 
 import com.example.ShirkeJR.RESTOrdersManager.Repository.CustomerRepository;
 import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.CustomerOrder;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
 import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,20 +26,19 @@ public class CustomerService {
 
     public Boolean existsById(Long customerId) {
         return customerRepository.existsById(customerId);
-
     }
 
-    public Customer update(Customer updatedCustomer){
-        Customer oldCustomer = customerRepository.findById(updatedCustomer.getCustomerId()).orElseThrow(ProductNotFoundException::new);
-        oldCustomer.setFirstName(updatedCustomer.getFirstName());
-        oldCustomer.setLastName(updatedCustomer.getLastName());
-        oldCustomer.setDateOfBirth(updatedCustomer.getDateOfBirth());
-        oldCustomer.setAddress(updatedCustomer.getAddress());
-        return customerRepository.save(oldCustomer);
+    public Customer save(Customer customer){
+        return customerRepository.save(customer);
     }
 
-    public void deleteById(Long customerId){
-        customerRepository.deleteById(customerId);
+    public Customer update(Customer newCustomer){
+        Customer customer = customerRepository.findById(newCustomer.getCustomerId()).orElseThrow(ProductNotFoundException::new);
+        customer.setFirstName(newCustomer.getFirstName());
+        customer.setLastName(newCustomer.getLastName());
+        customer.setDateOfBirth(newCustomer.getDateOfBirth());
+        customer.setAddress(newCustomer.getAddress());
+        return customerRepository.save(customer);
     }
 
     public Customer create(Customer newCustomer){
