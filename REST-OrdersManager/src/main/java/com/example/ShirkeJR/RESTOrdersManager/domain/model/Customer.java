@@ -6,8 +6,8 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Data
@@ -29,15 +29,25 @@ public class Customer{
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    private List<CustomerOrder> orders = new ArrayList<>();
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<CustomerOrder> orders = new HashSet<>();
 
     public void addOrder(CustomerOrder order){
         orders.add(order);
     }
 
     public void removeOrder(CustomerOrder order){
-        orders.remove(order);
+        CustomerOrder o = null;
+        for (CustomerOrder orderr: orders) {
+            if(orderr.getOrderId().equals(order.getOrderId())){
+                   o = orderr;
+                   break;
+            }
+        }
+        if(o != null){
+            orders.remove(o);
+        }
+
     }
 
     public Customer(String firstName, String lastName, LocalDate dateOfBirth, Address address) {

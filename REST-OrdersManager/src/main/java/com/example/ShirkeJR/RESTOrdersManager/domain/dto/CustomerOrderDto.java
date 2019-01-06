@@ -6,7 +6,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import org.springframework.hateoas.ResourceSupport;
 
-import java.util.List;
+import java.util.Set;
 
 @Data
 @NoArgsConstructor
@@ -17,5 +17,5 @@ public class CustomerOrderDto extends ResourceSupport {
     private LocalDate orderDate;
     private LocalDate dispatchDate;
     private Double totalOrderAmount;
-    private List<ProductLineDto> products;
+    private Set<ProductLineDto> products;
 }

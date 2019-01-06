@@ -4,11 +4,13 @@ import com.example.ShirkeJR.RESTOrdersManager.Repository.ProductRepository;
 import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class ProductService {
@@ -20,8 +22,8 @@ public class ProductService {
         return productRepository.findById(productId);
     }
 
-    public List<Product> findAll(){
-        return Lists.newArrayList(productRepository.findAll());
+    public Set<Product> findAll(){
+        return Sets.newHashSet(productRepository.findAll());
     }
 
     public Boolean existsById(Long productId){

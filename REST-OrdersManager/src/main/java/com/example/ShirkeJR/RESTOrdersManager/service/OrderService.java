@@ -8,11 +8,13 @@ import com.example.ShirkeJR.RESTOrdersManager.exception.CustomerNotFoundExceptio
 import com.example.ShirkeJR.RESTOrdersManager.exception.OrderNotFoundException;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class OrderService {
@@ -28,8 +30,8 @@ public class OrderService {
         return orderRepository.findById(orderId);
     }
 
-    public List<CustomerOrder> findAll() {
-        return Lists.newArrayList(orderRepository.findAll());
+    public Set<CustomerOrder> findAll() {
+        return Sets.newHashSet(orderRepository.findAll());
     }
 
     public Boolean existsById(Long orderId) {
@@ -44,10 +46,19 @@ public class OrderService {
         orderRepository.deleteById(orderId);
     }
 
-    public void create(Long customerId) {
+    public void removeOrder(Long customerId, Long orderId) {
         Customer customer = customerService.findById(customerId).orElseThrow(CustomerNotFoundException::new);
-        customer.addOrder(new CustomerOrder());
+        CustomerOrder order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
+        customer.removeOrder(order);
         customerService.save(customer);
+    }
+
+    public CustomerOrder create(Long customerId) {
+        Customer customer = customerService.findById(customerId).orElseThrow(CustomerNotFoundException::new);
+        CustomerOrder newOrder = new CustomerOrder();
+        customer.addOrder(newOrder);
+        customerService.save(customer);
+        return newOrder;
     }
 
     public CustomerOrder removeProductFromOrderById(Long productId, Long orderId) {

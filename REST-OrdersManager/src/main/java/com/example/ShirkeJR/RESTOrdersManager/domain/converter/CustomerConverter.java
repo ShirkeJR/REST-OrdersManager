@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class CustomerConverter {
@@ -22,8 +24,8 @@ public class CustomerConverter {
         return modelMapper.map(customer, CustomerDto.class);
     }
 
-    public List<CustomerDto> toView(List<Customer> customers){
-        List<CustomerDto> customerDtos = new ArrayList<>();
+    public Set<CustomerDto> toView(Set<Customer> customers){
+        Set<CustomerDto> customerDtos = new HashSet<>();
         for (Customer customer: customers) {
             customerDtos.add(toView(customer));
         }

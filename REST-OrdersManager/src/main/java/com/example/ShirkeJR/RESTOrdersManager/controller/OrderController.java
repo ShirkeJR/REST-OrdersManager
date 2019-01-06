@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RestController
@@ -57,19 +58,19 @@ public class OrderController {
 
 
     @RequestMapping(value = "/customer/{customerId}/orders", method = RequestMethod.GET)
-    public ResponseEntity<List<CustomerOrderDto>> getCustomerOrders(@PathVariable("customerId") Long customerId) {
+    public ResponseEntity<Set<CustomerOrderDto>> getCustomerOrders(@PathVariable("customerId") Long customerId) {
 
-        Customer customer = customerService.findById(customerId).orElseThrow(InvalidCustomerRequestException::new);
-        List<CustomerOrderDto> ordersDto = orderConverter.toView(customer.getOrders());
+        Customer customer = customerService.findById(customerId).orElseThrow(CustomerNotFoundException::new);
+        Set<CustomerOrderDto> ordersDto = orderConverter.toView(customer.getOrders());
         return ResponseEntity.ok(ordersDto);
     }
 
 
     @RequestMapping(value = "/{orderId}/products", method = RequestMethod.GET)
-    public ResponseEntity<List<ProductLineDto>> getProductsFromOrder(@PathVariable("orderId") Long orderId) {
+    public ResponseEntity<Set<ProductLineDto>> getProductsFromOrder(@PathVariable("orderId") Long orderId) {
 
         CustomerOrder customerOrder = orderService.findById(orderId).orElseThrow(OrderNotFoundException::new);
-        List<ProductLineDto> productsDto = productLineConverter.toView(customerOrder.getProducts());
+        Set<ProductLineDto> productsDto = productLineConverter.toView(customerOrder.getProducts());
         productsDto.forEach(product -> {
 
             product.add(linkTo(methodOn(ProductController.class)
@@ -103,8 +104,8 @@ public class OrderController {
 
         CustomerOrder order = orderService.addProductsToOrder(productId, orderId, quantity);
 
-        System.out.println("DONDANEEE");
         CustomerOrderDto orderDto = orderConverter.toView(order);
+
         orderDto.getProducts()
                 .forEach(prod -> {
                     orderDto.add(linkTo(methodOn(ProductController.class)
@@ -112,8 +113,7 @@ public class OrderController {
                             .withRel("product"));
                 });
 
-        return ResponseEntity.created(URI.create(orderDto.getLink("self").getHref()))
-                .body(orderDto);
+        return ResponseEntity.ok(orderDto);
     }
 
 
@@ -130,19 +130,18 @@ public class OrderController {
         }
     }
 
-    @RequestMapping(value = { "/customer/{customerId}/" }, method = { RequestMethod.PUT })
+    @RequestMapping(value = { "/customer/{customerId}/" }, method = { RequestMethod.POST })
     public ResponseEntity<Void> createOrder(@PathVariable("customerId") Long customerId) {
 
-        orderService.create(customerId);
+        CustomerOrderDto customerOrderDto = orderConverter.toView(orderService.create(customerId));
         return ResponseEntity.noContent().build();
     }
 
-    @RequestMapping(value = "/{orderId}", method = RequestMethod.DELETE)
-    public ResponseEntity<Void> removeOrder(@PathVariable("orderId") Long orderId) {
+    @RequestMapping(value = "/customer/{customerId}/orders/{orderId}", method = RequestMethod.DELETE)
+    public ResponseEntity<Void> removeOrder(@PathVariable("customerId") Long customerId,
+                                            @PathVariable("orderId") Long orderId) {
 
-        if (orderService.existsById(orderId)) {
-            orderService.deleteById(orderId);
-        }
+        orderService.removeOrder(customerId, orderId);
         return ResponseEntity.noContent().build();
     }
 
@@ -155,10 +154,6 @@ public class OrderController {
         order.add(linkTo(methodOn(OrderController.class)
                 .updateOrder(order, order.getOrderId()))
                 .withRel("update"));
-
-        order.add(linkTo(methodOn(OrderController.class)
-                .removeOrder(order.getOrderId()))
-                .withRel("delete"));
 
         order.add(linkTo(methodOn(OrderController.class)
                 .getProductsFromOrder(order.getOrderId()))

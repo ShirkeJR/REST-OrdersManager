@@ -6,7 +6,6 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 import com.example.ShirkeJR.RESTOrdersManager.domain.converter.CustomerConverter;
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.CustomerDto;
 import com.example.ShirkeJR.RESTOrdersManager.exception.CustomerNotFoundException;
-import com.example.ShirkeJR.RESTOrdersManager.exception.InvalidCustomerRequestException;
 import com.example.ShirkeJR.RESTOrdersManager.service.CustomerService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -64,10 +63,17 @@ public class CustomerController {
         }
     }
 
-    @RequestMapping(method = RequestMethod.PUT )
+    @RequestMapping(method = RequestMethod.POST )
     public ResponseEntity<Void> createCustomer(@RequestBody CustomerDto customerDto) {
 
         customerService.create(customerConverter.toModel(customerDto));
+        return ResponseEntity.noContent().build();
+    }
+
+    @RequestMapping(value = "/{customerId}", method = RequestMethod.DELETE )
+    public ResponseEntity<Void> removeCustomer(@PathVariable Long customerId) {
+
+        customerService.remove(customerId);
         return ResponseEntity.noContent().build();
     }
 }

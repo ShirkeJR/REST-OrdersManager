@@ -4,11 +4,13 @@ import com.example.ShirkeJR.RESTOrdersManager.Repository.CustomerRepository;
 import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 public class CustomerService {
@@ -20,8 +22,8 @@ public class CustomerService {
         return customerRepository.findById(customerId);
     }
 
-    public List<Customer> findAll() {
-        return Lists.newArrayList(customerRepository.findAll());
+    public Set<Customer> findAll() {
+        return Sets.newHashSet(customerRepository.findAll());
     }
 
     public Boolean existsById(Long customerId) {
@@ -48,5 +50,11 @@ public class CustomerService {
         customer.setDateOfBirth(newCustomer.getDateOfBirth());
         customer.setAddress(newCustomer.getAddress());
         return customerRepository.save(customer);
+    }
+
+    public void remove(Long customerId){
+        if(customerRepository.existsById(customerId)){
+            customerRepository.deleteById(customerId);
+        }
     }
 }

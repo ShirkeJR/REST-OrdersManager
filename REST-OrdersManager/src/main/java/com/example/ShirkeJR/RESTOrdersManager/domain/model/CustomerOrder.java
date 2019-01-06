@@ -5,9 +5,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Entity
 @Data
@@ -26,7 +24,7 @@ public class CustomerOrder{
     private Double totalOrderAmount;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ProductLine> products = new ArrayList<>();
+    private Set<ProductLine> products = new HashSet<>();
 
     public void addProducts(Product product, Integer quantity){
         Optional<ProductLine> result = products.stream().filter(prod -> prod.getProductId().equals(product.getProductId())).findFirst();

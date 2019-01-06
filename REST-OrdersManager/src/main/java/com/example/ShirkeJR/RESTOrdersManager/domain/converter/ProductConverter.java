@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Component
 public class ProductConverter {
@@ -24,8 +26,8 @@ public class ProductConverter {
         return modelMapper.map(product, ProductDto.class);
     }
 
-    public List<ProductDto> toView(List<Product> products){
-        List<ProductDto> productDtos = new ArrayList<>();
+    public Set<ProductDto> toView(Set<Product> products){
+        Set<ProductDto> productDtos = new HashSet<>();
         for (Product product: products) {
             productDtos.add(toView(product));
         }
