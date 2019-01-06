@@ -2,6 +2,7 @@ package com.example.ShirkeJR.RESTOrdersManager.controller;
 
 import com.example.ShirkeJR.RESTOrdersManager.domain.converter.ProductConverter;
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductDto;
+import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
 import com.example.ShirkeJR.RESTOrdersManager.exception.InvalidProductRequestException;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
 import com.example.ShirkeJR.RESTOrdersManager.service.ProductService;
@@ -28,6 +29,8 @@ public class ProductController {
     @RequestMapping(value = "/{productId}", method = RequestMethod.GET)
     public ResponseEntity<ProductDto> getProduct(@PathVariable("productId") Long productId) {
 
+        if (productId == null) throw new InvalidProductRequestException();
+
         ProductDto productDto = productConverter.toView(productService.findById(productId)
                 .orElseThrow(ProductNotFoundException::new));
 
@@ -45,27 +48,45 @@ public class ProductController {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<ProductDto>> getProducts() {
 
-        return ResponseEntity.ok(productService.findAll().stream()
-                .map(productConverter::toView).collect(Collectors.toList()));
+        List<ProductDto> productsDto = productService.findAll().stream().map(productConverter::toView).collect(Collectors.toList());
+
+        productsDto.forEach(product -> {
+            product.add(linkTo(methodOn(ProductController.class)
+                    .getProduct(product.getProductId()))
+                    .withSelfRel());
+        });
+
+        return ResponseEntity.ok(productsDto);
     }
 
 
-    @RequestMapping(value = { "/{productId}" }, method = { RequestMethod.PUT })
-    public ResponseEntity<Void> updateProduct(@RequestBody ProductDto productDto,
+    @RequestMapping(value = "/{productId}", method = RequestMethod.PUT)
+    public ResponseEntity<ProductDto> updateProduct(@RequestBody ProductDto productDto,
                                               @PathVariable("productId") Long productId) {
 
         if(!productService.existsById(productId)){
             return ResponseEntity.notFound().build();
         }
         else{
-            productService.update(productConverter.toModel(productDto));
-            return ResponseEntity.noContent().build();
+            ProductDto product = productConverter.toView(productService.update(productConverter.toModel(productDto)));
+
+            product.add(linkTo(methodOn(ProductController.class)
+                    .getProduct(product.getProductId()))
+                    .withSelfRel());
+
+            return ResponseEntity.ok(product);
         }
     }
 
-    @RequestMapping(method = RequestMethod.PUT )
-    public ResponseEntity<Void> createProduct(@RequestBody ProductDto productDto) {
-        productService.create(productConverter.toModel(productDto));
-        return ResponseEntity.noContent().build();
+    @RequestMapping(method = RequestMethod.POST)
+    public ResponseEntity<ProductDto> createProduct(@RequestBody ProductDto productDto) {
+
+        ProductDto product = productConverter.toView(productService.create(productConverter.toModel(productDto)));
+
+        product.add(linkTo(methodOn(ProductController.class)
+                .getProduct(product.getProductId()))
+                .withSelfRel());
+
+        return ResponseEntity.ok(product);
     }
 }

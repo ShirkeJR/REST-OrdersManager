@@ -7,12 +7,10 @@ import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
 import com.example.ShirkeJR.RESTOrdersManager.exception.CustomerNotFoundException;
 import com.example.ShirkeJR.RESTOrdersManager.exception.OrderNotFoundException;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -42,10 +40,6 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-    public void deleteById(Long orderId) {
-        orderRepository.deleteById(orderId);
-    }
-
     public void removeOrder(Long customerId, Long orderId) {
         Customer customer = customerService.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         CustomerOrder order = orderRepository.findById(orderId).orElseThrow(OrderNotFoundException::new);
@@ -58,7 +52,7 @@ public class OrderService {
         CustomerOrder newOrder = new CustomerOrder();
         customer.addOrder(newOrder);
         customerService.save(customer);
-        return newOrder;
+        return orderRepository.findByRandomNumber(newOrder.getRandomNumber());
     }
 
     public CustomerOrder removeProductFromOrderById(Long productId, Long orderId) {

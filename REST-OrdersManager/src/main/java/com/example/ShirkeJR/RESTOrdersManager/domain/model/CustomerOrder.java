@@ -6,6 +6,7 @@ import java.time.LocalDate;
 
 import javax.persistence.*;
 import java.util.*;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Entity
 @Data
@@ -22,6 +23,8 @@ public class CustomerOrder{
     private LocalDate dispatchDate;
 
     private Double totalOrderAmount;
+
+    private Integer randomNumber;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductLine> products = new HashSet<>();
@@ -45,6 +48,7 @@ public class CustomerOrder{
     }
 
     public CustomerOrder() {
+        this.randomNumber = ThreadLocalRandom.current().nextInt(10, 9999999);
         this.orderDate = LocalDate.now();
         this.dispatchDate = LocalDate.now().plusDays(3);
         this.totalOrderAmount = 0.0;

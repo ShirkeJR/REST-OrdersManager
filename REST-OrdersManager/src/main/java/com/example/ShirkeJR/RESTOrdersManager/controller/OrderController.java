@@ -4,13 +4,9 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 import com.example.ShirkeJR.RESTOrdersManager.domain.converter.OrderConverter;
-import com.example.ShirkeJR.RESTOrdersManager.domain.converter.ProductConverter;
 import com.example.ShirkeJR.RESTOrdersManager.domain.converter.ProductLineConverter;
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.CustomerOrderDto;
-import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductDto;
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductLineDto;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.ProductLine;
 import com.example.ShirkeJR.RESTOrdersManager.exception.*;
 import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
 import com.example.ShirkeJR.RESTOrdersManager.domain.model.CustomerOrder;
@@ -20,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -45,6 +40,8 @@ public class OrderController {
     @RequestMapping(value = "/{orderId}", method = RequestMethod.GET)
     public ResponseEntity<CustomerOrderDto> getOrder(@PathVariable("orderId") Long orderId) {
 
+        if (orderId == null) throw new InvalidOrderRequestException();
+
         CustomerOrderDto orderDto = orderConverter.toView(orderService.findById(orderId).orElseThrow(OrderNotFoundException::new));
         return ResponseEntity.ok(addLinks(orderDto));
     }
@@ -52,8 +49,16 @@ public class OrderController {
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<CustomerOrderDto>> getAllOrders() {
 
-        return ResponseEntity.ok(orderService.findAll().stream()
-                .map(orderConverter::toView).collect(Collectors.toList()));
+        List<CustomerOrderDto> customerOrdersDto = orderService.findAll().stream()
+                .map(orderConverter::toView).collect(Collectors.toList());
+
+        customerOrdersDto.forEach(order -> {
+            order.add(linkTo(methodOn(OrderController.class)
+                    .getOrder(order.getOrderId()))
+                    .withSelfRel());
+        });
+
+        return ResponseEntity.ok(customerOrdersDto);
     }
 
 
@@ -62,6 +67,17 @@ public class OrderController {
 
         Customer customer = customerService.findById(customerId).orElseThrow(CustomerNotFoundException::new);
         Set<CustomerOrderDto> ordersDto = orderConverter.toView(customer.getOrders());
+
+        ordersDto.forEach( order -> {
+            order.add(linkTo(methodOn(OrderController.class)
+                    .getOrder(order.getOrderId()))
+                    .withSelfRel());
+
+            order.add(linkTo(methodOn(OrderController.class)
+                    .removeOrder(customerId, order.getOrderId()))
+                    .withRel("delete"));
+        });
+
         return ResponseEntity.ok(ordersDto);
     }
 
@@ -102,9 +118,7 @@ public class OrderController {
 
         if(quantity <= 0) throw new IllegalArgumentException();
 
-        CustomerOrder order = orderService.addProductsToOrder(productId, orderId, quantity);
-
-        CustomerOrderDto orderDto = orderConverter.toView(order);
+        CustomerOrderDto orderDto = orderConverter.toView(orderService.addProductsToOrder(productId, orderId, quantity));
 
         orderDto.getProducts()
                 .forEach(prod -> {
@@ -118,23 +132,23 @@ public class OrderController {
 
 
     @RequestMapping(value = { "/{orderId}" } , method = { RequestMethod.PUT })
-    public ResponseEntity<Void> updateOrder(@RequestBody CustomerOrderDto orderDto,
+    public ResponseEntity<CustomerOrderDto> updateOrder(@RequestBody CustomerOrderDto orderDto,
                                             @PathVariable("orderId") Long orderId) {
 
         if(!orderService.existsById(orderId)){
             return ResponseEntity.notFound().build();
         }
         else{
-            orderService.update(orderConverter.toModel(orderDto));
-            return ResponseEntity.noContent().build();
+            CustomerOrderDto customerOrderDto = orderConverter.toView(orderService.update(orderConverter.toModel(orderDto)));
+            return ResponseEntity.ok(addLinks(customerOrderDto));
         }
     }
 
     @RequestMapping(value = { "/customer/{customerId}/" }, method = { RequestMethod.POST })
-    public ResponseEntity<Void> createOrder(@PathVariable("customerId") Long customerId) {
+    public ResponseEntity<CustomerOrderDto> createOrder(@PathVariable("customerId") Long customerId) {
 
         CustomerOrderDto customerOrderDto = orderConverter.toView(orderService.create(customerId));
-        return ResponseEntity.noContent().build();
+        return ResponseEntity.ok(addLinks(customerOrderDto));
     }
 
     @RequestMapping(value = "/customer/{customerId}/orders/{orderId}", method = RequestMethod.DELETE)
