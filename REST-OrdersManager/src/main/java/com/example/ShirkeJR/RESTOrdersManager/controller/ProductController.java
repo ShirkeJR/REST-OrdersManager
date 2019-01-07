@@ -2,7 +2,6 @@ package com.example.ShirkeJR.RESTOrdersManager.controller;
 
 import com.example.ShirkeJR.RESTOrdersManager.domain.converter.ProductConverter;
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductDto;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
 import com.example.ShirkeJR.RESTOrdersManager.exception.InvalidProductRequestException;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
 import com.example.ShirkeJR.RESTOrdersManager.service.ProductService;

@@ -29,7 +29,7 @@ public class Customer{
     @OneToOne(cascade = CascadeType.ALL)
     private Address address;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<CustomerOrder> orders = new HashSet<>();
 
     public void addOrder(CustomerOrder order){

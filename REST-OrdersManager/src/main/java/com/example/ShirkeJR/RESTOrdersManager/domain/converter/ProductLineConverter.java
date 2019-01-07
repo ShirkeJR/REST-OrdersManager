@@ -1,16 +1,12 @@
 package com.example.ShirkeJR.RESTOrdersManager.domain.converter;
 
-import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductDto;
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductLineDto;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
 import com.example.ShirkeJR.RESTOrdersManager.domain.model.ProductLine;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Component

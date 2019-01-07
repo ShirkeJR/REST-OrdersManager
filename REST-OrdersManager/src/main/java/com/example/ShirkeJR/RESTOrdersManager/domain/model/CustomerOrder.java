@@ -26,7 +26,7 @@ public class CustomerOrder{
 
     private Integer randomNumber;
 
-    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProductLine> products = new HashSet<>();
 
     public void addProducts(Product product, Integer quantity){

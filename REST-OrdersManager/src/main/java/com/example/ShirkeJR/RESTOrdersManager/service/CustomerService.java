@@ -3,12 +3,10 @@ package com.example.ShirkeJR.RESTOrdersManager.service;
 import com.example.ShirkeJR.RESTOrdersManager.Repository.CustomerRepository;
 import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
