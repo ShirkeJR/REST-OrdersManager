@@ -1,7 +1,10 @@
-package com.example.ShirkeJR.RESTOrdersManager.domain.model;
+package com.example.ShirkeJR.RESTOrdersManager.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
+
 import java.time.LocalDate;
 
 import javax.persistence.*;
@@ -14,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 public class CustomerOrder{
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long orderId;
 
@@ -26,7 +29,8 @@ public class CustomerOrder{
 
     private Integer randomNumber;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
     private Set<ProductLine> products = new HashSet<>();
 
     public void addProducts(Product product, Integer quantity){

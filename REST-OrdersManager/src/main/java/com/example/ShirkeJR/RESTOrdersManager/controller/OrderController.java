@@ -8,8 +8,8 @@ import com.example.ShirkeJR.RESTOrdersManager.domain.converter.ProductLineConver
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.CustomerOrderDto;
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductLineDto;
 import com.example.ShirkeJR.RESTOrdersManager.exception.*;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.CustomerOrder;
+import com.example.ShirkeJR.RESTOrdersManager.domain.entity.Customer;
+import com.example.ShirkeJR.RESTOrdersManager.domain.entity.CustomerOrder;
 import com.example.ShirkeJR.RESTOrdersManager.service.CustomerService;
 import com.example.ShirkeJR.RESTOrdersManager.service.OrderService;
 import org.springframework.beans.factory.annotation.Autowired;

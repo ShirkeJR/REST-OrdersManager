@@ -1,4 +1,4 @@
-package com.example.ShirkeJR.RESTOrdersManager.domain.model;
+package com.example.ShirkeJR.RESTOrdersManager.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ import javax.persistence.*;
 public class ProductLine {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long id;
 

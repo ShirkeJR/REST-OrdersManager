@@ -1,7 +1,7 @@
 package com.example.ShirkeJR.RESTOrdersManager.domain.converter;
 
 import com.example.ShirkeJR.RESTOrdersManager.domain.dto.ProductDto;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
+import com.example.ShirkeJR.RESTOrdersManager.domain.entity.Product;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;

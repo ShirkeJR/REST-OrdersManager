@@ -1,9 +1,9 @@
 package com.example.ShirkeJR.RESTOrdersManager.service;
 
 import com.example.ShirkeJR.RESTOrdersManager.Repository.OrderRepository;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.CustomerOrder;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Product;
+import com.example.ShirkeJR.RESTOrdersManager.domain.entity.Customer;
+import com.example.ShirkeJR.RESTOrdersManager.domain.entity.CustomerOrder;
+import com.example.ShirkeJR.RESTOrdersManager.domain.entity.Product;
 import com.example.ShirkeJR.RESTOrdersManager.exception.CustomerNotFoundException;
 import com.example.ShirkeJR.RESTOrdersManager.exception.OrderNotFoundException;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;

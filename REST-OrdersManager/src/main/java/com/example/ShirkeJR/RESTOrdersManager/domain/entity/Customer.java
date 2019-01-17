@@ -1,8 +1,10 @@
-package com.example.ShirkeJR.RESTOrdersManager.domain.model;
+package com.example.ShirkeJR.RESTOrdersManager.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Fetch;
+import org.hibernate.annotations.FetchMode;
 
 import javax.persistence.*;
 import java.time.LocalDate;
@@ -16,7 +18,7 @@ import java.util.Set;
 public class Customer{
 
     @Id
-    @GeneratedValue(strategy= GenerationType.AUTO)
+    @GeneratedValue(strategy= GenerationType.IDENTITY)
     @Column(name = "id", updatable = false, nullable = false)
     private Long customerId;
 
@@ -26,10 +28,11 @@ public class Customer{
 
     private LocalDate dateOfBirth;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
     private Address address;
 
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL, orphanRemoval = true)
+    @Fetch(FetchMode.JOIN)
     private Set<CustomerOrder> orders = new HashSet<>();
 
     public void addOrder(CustomerOrder order){

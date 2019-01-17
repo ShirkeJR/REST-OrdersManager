@@ -1,7 +1,7 @@
 package com.example.ShirkeJR.RESTOrdersManager.service;
 
 import com.example.ShirkeJR.RESTOrdersManager.Repository.CustomerRepository;
-import com.example.ShirkeJR.RESTOrdersManager.domain.model.Customer;
+import com.example.ShirkeJR.RESTOrdersManager.domain.entity.Customer;
 import com.example.ShirkeJR.RESTOrdersManager.exception.ProductNotFoundException;
 import com.google.common.collect.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
